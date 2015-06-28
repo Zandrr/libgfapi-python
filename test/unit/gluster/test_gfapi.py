@@ -934,7 +934,7 @@ class TestVolume(unittest.TestCase):
         mock_glfs_setxattr.return_value = 0
 
         with patch("gluster.gfapi.api.glfs_setxattr", mock_glfs_setxattr):
-            self.vol.setxattr("file.txt", "key1", "hello", 5)
+            self.vol.setxattr("file.txt", "user.key1", "hello", 5)
 
     def test_setxattr_fail_exception(self):
         mock_glfs_setxattr = Mock()
@@ -942,7 +942,7 @@ class TestVolume(unittest.TestCase):
 
         with patch("gluster.gfapi.api.glfs_setxattr", mock_glfs_setxattr):
             self.assertRaises(OSError, self.vol.setxattr, "file.txt",
-                              "key1", "hello", 5)
+                              "user.key1", "hello", 5)
 
     def test_symlink_success(self):
         mock_glfs_symlink = Mock()

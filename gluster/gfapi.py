@@ -235,6 +235,17 @@ class File(object):
                       2: Perform a pure replace operation, which fails if the
                          named attribute does not already exist.
         """
+        try:
+            prefix, _name = key.split('.', 1)
+        except ValueError:
+            raise ValueError("Xattr key must contain a namespace and a name.")
+
+        ok_prefixes = ['user', 'system', 'trusted', 'security']
+        if prefix not in ok_prefixes:
+            raise NameError("Key must start with {0}.".format(ok_prefixes))
+        if _name is '':
+            raise NameError("Key must end with a name")
+
         ret = api.glfs_fsetxattr(self.fd, key, value, len(value), flags)
         if ret < 0:
             err = ctypes.get_errno()
@@ -960,6 +971,17 @@ class Volume(object):
                       2: Perform a pure replace operation, which fails if the
                          named attribute does not already exist.
         """
+        try:
+            prefix, _name = key.split('.', 1)
+        except ValueError:
+            raise ValueError("Xattr key must contain a namespace and a name.")
+
+        ok_prefixes = ['user', 'system', 'trusted', 'security']
+        if prefix not in ok_prefixes:
+            raise NameError("Key must start with {0}.".format(ok_prefixes))
+        if _name is '':
+            raise NameError("Key must end with a name")
+
         ret = api.glfs_setxattr(self.fs, path, key, value, len(value), flags)
         if ret < 0:
             err = ctypes.get_errno()

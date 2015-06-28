@@ -294,6 +294,14 @@ class FileOpsTest(unittest.TestCase):
         self.vol.setxattr(self.path, "trusted.key1", value)
         self.assertEqual(self.vol.getxattr(self.path, "trusted.key1"),
                          value)
+        # flag = 0 behavior: fail if key does not start with proper namespace
+        self.assertRaises(NameError, self.vol.setxattr, self.path, "untrusted.key1", value, flags=0)
+
+        # flag = 0 behavior: fail if key does not contain namespace and name
+        self.assertRaisesRegexp(ValueError, "Xattr key must contain a namespace and a name.", self.vol.setxattr, self.path, "somekey", value, flags=0)
+
+        # flag = 0 behavior: fail if key contains correct namespace without name
+        self.assertRaises(NameError, self.vol.setxattr, self.path, "trusted.", value, flags=0)
 
         # flag = 1 behavior: fail if xattr exists
         self.assertRaises(OSError, self.vol.setxattr, self.path,
@@ -361,6 +369,15 @@ class FileOpsTest(unittest.TestCase):
         with File(self.vol.open(name, os.O_WRONLY | os.O_CREAT)) as f:
             f.fsetxattr("user.gluster", "awesome")
             self.assertEqual(f.fgetxattr("user.gluster"), "awesome")
+
+            # flag = 0 behavior: fail if key does not start with proper namespace
+            self.assertRaises(NameError, f.fsetxattr, "untrusted.key1",
+                                "platypus", flags=0)
+            # flag = 0 behavior: fail if key does not contain namespace and name
+            self.assertRaisesRegexp(ValueError, "Xattr key must contain a namespace and a name.", f.fsetxattr, "somekey", "conch", flags=0)
+            # flag = 0 behavior: fail if key contains correct namespace without name
+            self.assertRaises(NameError, f.fsetxattr, "trusted.",
+                                "magic!", flags=0)
             # flag = 1 behavior: fail if xattr exists
             self.assertRaises(OSError, f.fsetxattr, "user.gluster",
                               "more awesome", flags=1)
